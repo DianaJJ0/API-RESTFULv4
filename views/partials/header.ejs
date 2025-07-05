@@ -3,12 +3,23 @@
     <a href="/" class="site-header__logo">TechStore</a>
     <nav class="site-header__nav">
       <a href="/" class="site-header__link">Inicio</a>
-      <a href="#" class="site-header__link">Productos</a>
+      <a href="/catalogo" class="site-header__link">Productos</a>
       <a href="#" class="site-header__link">Contacto</a>
     </nav>
     <div class="site-header__auth">
-      <a href="/login" class="btn btn-outline">Iniciar sesión</a>
-      <a href="/register" class="btn btn-primary">Registrarse</a>
+      <!-- Lógica condicional: ¿Existe la variable 'usuario'? -->
+      <% if (usuario) { %>
+        <!-- Si el usuario SÍ ha iniciado sesión -->
+        <span class="site-header__username">Hola, <%= usuario.nombreCompleto.split(' ')[0] %></span> 
+        <a href="/perfil" class="btn btn-outline">Mi Perfil</a>
+        <a href="/auth/logout" class="btn btn-danger">Cerrar Sesión</a>
+
+      <% } else { %>
+        <!-- Si el usuario NO ha iniciado sesión -->
+        <a href="/login" class="btn btn-outline">Iniciar sesión</a>
+        <a href="/register" class="btn btn-primary">Registrarse</a>
+      <% } %>
+
     </div>
   </div>
 </header>

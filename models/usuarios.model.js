@@ -1,34 +1,22 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
+// Expresión regular para validar correos electrónicos
+const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
-const schemaUsuario = new mongoose.Schema({
-    documento: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true,
-        minlength: [7, "El documento debe tener al menos 7 caracteres."],
-        maxlength: [10, "El documento debe tener como máximo 10 caracteres."]
-    },
+const usuarioSchema = new Schema({
     nombreCompleto: {
         type: String,
         required: [true, 'El nombre completo es obligatorio.'],
-        trim: true,
-        maxlength: 150
-    },
-    fechaNacimiento: {
-        type: Date,
-        required: [true, 'La fecha de nacimiento es obligatoria.']
+        trim: true
     },
     correo: {
         type: String,
         required: [true, 'El correo electrónico es obligatorio.'],
-        unique: true,
+        unique: true, // No puede haber dos usuarios con el mismo correo
+        lowercase: true, // Guarda siempre el correo en minúsculas
         trim: true,
-        lowercase: true,
-        match: [
-            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-            'Por favor, introduce un correo electrónico válido.'
-        ]
+        // 
+        match: [emailRegex, 'Por favor, introduce un correo electrónico válido.']
     },
     password: {
         type: String,
@@ -37,26 +25,13 @@ const schemaUsuario = new mongoose.Schema({
     },
     rol: {
         type: String,
-        required: true,
-        enum: ['cliente', 'empleado', 'admin'], // cliente: compra productos, empleado: maneja tienda, admin: acceso total
-        default: 'cliente'
-    },
-    // Campos adicionales para clientes (opcionales para empleados/admin)
-    telefono: {
-        type: String,
-        trim: true,
-        default: ''
-    },
-    direccion: {
-        type: String,
-        trim: true,
-        default: ''
+        default: 'usuario_basico', // Todos los usuarios se registran con este rol por defecto
+        enum: ['usuario_basico', 'cliente', 'empleado', 'admin']
     }
 }, {
-    timestamps: true,
-    versionKey: false
+    timestamps: true // Añade automáticamente createdAt y updatedAt
 });
 
-const Usuario = mongoose.model('Usuario', schemaUsuario);
+const Usuario = mongoose.model('Usuario', usuarioSchema);
 
 module.exports = Usuario;
