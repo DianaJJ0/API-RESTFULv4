@@ -1,26 +1,30 @@
 const express = require('express');
 const router = express.Router();
 
-// Importamos las funciones del controlador de usuarios
+// Importamos las funciones del controlador de CLIENTES (no usuarios)
 const {
-    obtenerUsuarios,
-    crearUsuario,
-    actualizarUsuario,
-    eliminarUsuario
-} = require('../controllers/usuarios.controller.js');
+    obtenerClientes,
+    obtenerClientePorDocumento,
+    crearCliente,
+    actualizarCliente,
+    eliminarCliente
+} = require('../controllers/clientes.controller.js');
 
-// --- Rutas para la API de Usuarios ---
+// --- Rutas para la API de Clientes ---
 
-// GET /api/usuarios/
-router.get('/', obtenerUsuarios);
+// GET /v2/api/clientes/
+router.get('/', obtenerClientes);
 
-// POST /api/usuarios/
-router.post('/', crearUsuario);
+// GET /v2/api/clientes/:documento
+router.get('/:documento', obtenerClientePorDocumento);
 
-// PUT /api/usuarios/:email
-router.put('/:email', actualizarUsuario);
+// POST /v2/api/clientes/
+router.post('/', crearCliente);
 
-// DELETE /api/usuarios/:email
-router.delete('/:email', eliminarUsuario);
+// PUT /v2/api/clientes/:documento
+router.put('/:documento', actualizarCliente);
+
+// DELETE /v2/api/clientes/:documento
+router.delete('/:documento', eliminarCliente);
 
 module.exports = router;

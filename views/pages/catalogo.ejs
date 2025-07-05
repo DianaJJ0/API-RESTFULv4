@@ -1,10 +1,45 @@
-<%- include('../partials/head') %>
-<%- include('../partials/header') %>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <%- include('../partials/head', { title: 'Catálogo de Productos | TechStore' }) %>
+</head>
+<body>
+    
+    <%- include('../partials/header') %>
 
-<div class="container">
-    <h1>¡El sistema de vistas funciona!</h1>
-    <p>Este es el contenido de la página del catálogo.</p>
-    <p>En el siguiente paso, mostraremos aquí los productos que encontramos en la base de datos.</p>
-</div>
+    <main class="catalog-container">
+        <header class="catalog-header">
+            <h1>Nuestros Productos</h1>
+            <p>Descubre la última tecnología en nuestra tienda. Calidad y rendimiento garantizados.</p>
+        </header>
 
-<%- include('../partials/footer') %>
+        <div class="catalog-grid">
+            
+            <% if (productos && productos.length > 0) { %>
+                <% productos.forEach(producto => { %>
+                    <div class="product-card">
+                        <div class="product-card__image-container">
+                            <img src="/images/<%= producto.referencia %>.jpg" alt="Imagen de <%= producto.nombre %>" class="product-card__image">
+                        </div>
+                        <div class="product-card__body">
+                            <h3 class="product-card__title"><%= producto.nombre %></h3>
+                            <p class="product-card__description"><%= producto.descripcion %></p>
+                            <span class="product-card__ref">Ref: <%= producto.referencia %></span>
+                            <p class="product-card__price">$<%= new Intl.NumberFormat('es-CO').format(producto.precio) %></p>
+                            <button class="btn btn-primary product-card__btn">Añadir al carrito</button>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="no-products-message">
+                    <p>No hay productos disponibles para mostrar en este momento.</p>
+                </div>
+            <% } %>
+
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+
+</body>
+</html>

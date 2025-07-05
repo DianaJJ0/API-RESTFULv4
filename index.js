@@ -1,47 +1,46 @@
-/// Importaciones de módulos
+// --- Importaciones de Módulos ---
 const express = require("express");
-const path = require("path");
+const path = require("path"); // Módulo para manejar rutas de archivos
 const morgan = require('morgan');
 require("dotenv").config();
 
-const { dbConnection } = require('./config/database'); // Importa la función de conexión a la BD
-
-// Se importan los enrutadores modulares
+// --- Importaciones Locales ---
+const { dbConnection } = require('./config/database');
 const productosRouter = require('./routers/productos.routes.js');
 const clientesRouter = require('./routers/clientes.routes.js');
 const usuariosRouter = require('./routers/usuarios.routes.js');
+const viewsRouter = require('./routers/views.routes.js');
 
-// Inicialización de la aplicación Express
+// --- Inicialización de la Aplicación ---
 const app = express();
 
-// Conexión a la Base de Datos
+// --- Conexión a la Base de Datos ---
 dbConnection();
 
-// Configuración de Middlewares
-app.use(express.urlencoded({ extended: false })); // Para parsear bodies de formularios
-app.use(express.json()); // Para tipo JSON
-app.use(express.static('assets')); // Para los archivos estáticos la carpeta 'assets'
-app.use(morgan('dev')); // Para logging de las solicitudes en la consola
+// --- Middlewares ---
 
+// Para parsear datos de formularios y JSON
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
-// Configuración del motor de plantillas (EJS)
+// Logger de peticiones HTTP en la consola
+app.use(morgan('dev'));
+
+// Le dice a Express que la carpeta 'public' en la raíz del proyecto es de acceso público.
+app.use(express.static(path.join(__dirname, 'public')));
+
+// --- Configuración del Motor de Plantillas (EJS) ---
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Definición de Rutas
-// Se asigna una ruta base a cada enrutador.
-app.use("/v2/api/productos", productosRouter);
-// Todas las rutas definidas en clientes.routes.js ahora comenzarán con /v2/api/clientes
-app.use("/v2/api/clientes", clientesRouter);
-app.use("/v2/api/usuarios", usuariosRouter);
+// --- Definición de Rutas ---
+app.use("/v2/api/productos", productosRouter); // Rutas de la API de productos
+app.use("/v2/api/clientes", clientesRouter);   // Rutas de la API de clientes
+app.use("/v2/api/usuarios", usuariosRouter);   // Rutas de la API de usuarios
+app.use("/", viewsRouter);                     // Rutas para las vistas (páginas web)
 
-// Se añade una ruta raíz para dar la bienvenida a la API
-app.get("/", (req, res) => {
-    res.status(200).json({ mensaje: "Bienvenido a la API RESTful v2" });
-});
-
-// Iniciar el servidor
-const PORT = process.env.PORT || 3000; // Usa el puerto del .env o el 3000 por defecto
+// --- Iniciar el Servidor ---
+const PORT = process.env.PORT || 9090;
 app.listen(PORT, () => {
   console.log(`Servidor en línea en el puerto ${PORT}`);
 });

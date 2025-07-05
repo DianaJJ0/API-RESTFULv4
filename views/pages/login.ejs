@@ -1,35 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <%- include('../partials/head'); %>
-</head>
-<body class="container">
+<html lang="es">
+  <head>
+    <%- include('../partials/head', { title: 'Iniciar sesión | TechStore' }) %>
+  </head>
+  <body>
+    <%- include('../partials/header') %>
 
-<header>
-    <%- include('../partials/header'); %>
-</header>
-
-<main>
-<div class="row">
-    <div class="col-sm-8">
-        <div class="jumbotron">
-            <h1>This is great</h1>
-            <p>Welcome to templating using EJS</p>
+    <main class="auth-container">
+      <div class="auth-card login-card">
+        <div class="auth-header">
+          <div class="auth-logo">TechStore</div>
+          <div class="auth-decoration"></div>
         </div>
-    </div>
 
-    <div class="col-sm-4">
-        <div class="well">
-            <h3>Look I'm A Sidebar!</h3>
+        <div class="auth-content">
+          <h1 class="auth-title">Iniciar sesión</h1>
+          <p class="auth-subtitle">La mejor opción en Tecnología</p>
+          
+          <!-- Mensaje de registro exitoso -->
+          <% if (typeof registered !== 'undefined' && registered === 'true') { %>
+            <div class="alert alert-success">
+              <p>¡Registro exitoso! Ahora puedes iniciar sesión.</p>
+            </div>
+          <% } %>
+
+          <form class="auth-form" action="/v2/api/usuarios/login" method="POST">
+            <div class="form-group">
+              <label for="correo">Correo electrónico</label>
+              <input
+                type="email"
+                id="correo"
+                name="correo"
+                placeholder="tucorreo@ejemplo.com"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Contraseña</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Ingresa tu contraseña"
+                required
+              />
+            </div>
+
+            <div class="form-options">
+              <label class="checkbox-label">
+                <input type="checkbox" name="remember" />
+                <span class="checkmark"></span>
+                Recordarme
+              </label>
+              <a href="#" class="link">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">
+              Iniciar sesión
+            </button>
+          </form>
+
+          <div class="auth-divider">
+            <span>O</span>
+          </div>
+
+          <div class="social-auth">
+            <button type="button" class="btn btn-social btn-google">
+              <span class="social-icon">G</span>
+              Continuar con Google
+            </button>
+          </div>
+
+          <div class="auth-footer">
+            <p>
+              ¿No tienes una cuenta?
+              <a href="/register" class="link">Regístrate</a>
+            </p>
+          </div>
         </div>
-    </div>
+      </div>
+    </main>
 
-</div>
-</main>
-
-<footer>
-    <%- include('../partials/footer'); %>
-</footer>
-
-</body>
+    <%- include('../partials/footer') %>
+  </body>
+</html>
 </html>

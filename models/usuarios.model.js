@@ -34,21 +34,29 @@ const schemaUsuario = new mongoose.Schema({
         type: String,
         required: [true, 'La contraseña es obligatoria.'],
         minlength: [8, 'La contraseña debe tener al menos 8 caracteres.']
-        // Nota: El hash de la contraseña siempre tendrá una longitud fija (60 caracteres para bcrypt),
     },
     rol: {
         type: String,
         required: true,
-        enum: ['user', 'admin'], // El rol solo puede ser uno de estos dos valores.
-        default: 'user' // Por defecto, todos los nuevos usuarios son 'user'.
+        enum: ['cliente', 'empleado', 'admin'], // cliente: compra productos, empleado: maneja tienda, admin: acceso total
+        default: 'cliente'
+    },
+    // Campos adicionales para clientes (opcionales para empleados/admin)
+    telefono: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    direccion: {
+        type: String,
+        trim: true,
+        default: ''
     }
 }, {
     timestamps: true,
     versionKey: false
 });
 
-// El nombre del modelo debe ser singular y en mayúscula ('Usuario').
-// Mongoose creará automáticamente la colección en la base de datos con el nombre en plural y minúsculas ('usuarios').
 const Usuario = mongoose.model('Usuario', schemaUsuario);
 
 module.exports = Usuario;

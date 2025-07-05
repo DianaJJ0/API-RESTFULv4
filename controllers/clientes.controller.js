@@ -19,7 +19,7 @@ const obtenerClientePorDocumento = async (req, res) => {
         if (cliente) {
             res.status(200).json(cliente);
         } else {
-            // CORRECCIÓN: Mensaje de error más específico.
+          
             res.status(404).json({ mensaje: `No se encontró ningún cliente con el documento '${req.params.documento}'` });
         }
     } catch (error) {

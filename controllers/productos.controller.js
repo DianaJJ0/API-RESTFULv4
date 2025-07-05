@@ -70,17 +70,18 @@ const eliminarProducto = async (req, res) => {
 // --- FUNCIÓN PARA RENDERIZAR LA VISTA PRINCIPAL (HTML) ---
 const vistaPrincipal = async (req, res) => {
     try {
-        const productos = await modeloProducto.find();
+        // mostrar solo productos publicados.
+        const productos = await modeloProducto.find({ publicado: true });
+        
+        // Le pasamos los productos encontrados a la vista 'catalogo.ejs'
         res.render('pages/catalogo', {
-            titulo: 'Catálogo de Productos',
-            productos: productos // Pasamos los productos a la vista
+            productos: productos 
         });
     } catch (error) {
         console.error('Error al renderizar la vista principal:', error);
-        res.status(500).send('Error interno del servidor');
+        res.status(500).send('Error interno del servidor al cargar el catálogo.');
     }
 };
-
 // Exportamos todas las funciones
 module.exports = {
     vistaPrincipal,
