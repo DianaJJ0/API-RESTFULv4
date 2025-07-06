@@ -201,6 +201,114 @@ npm test           # Ejecuta pruebas (si están configuradas)
 - `GET /perfil` - Perfil de usuario (protegido)
 - `POST /comprar/:id` - Procesar compra (protegido)
 
+## 🔐 Flujo de Autenticación del Proyecto
+
+El sistema de autenticación utiliza **JWT (JSON Web Tokens)** almacenados en cookies seguras para mantener las sesiones de usuario. A continuación se detalla el proceso completo:
+
+### 📋 Proceso Paso a Paso
+
+#### 1. **Login Inicial**
+- Diana entra a `/login` y envía su correo y contraseña a través del formulario.
+
+#### 2. **Verificación de Credenciales**
+- El controlador `login_post` en el servidor verifica las credenciales contra la base de datos MongoDB.
+- Se utiliza `bcrypt.compare()` para verificar que la contraseña coincida con el hash almacenado.
+
+#### 3. **Creación del Token**
+- Si las credenciales son correctas, el servidor llama a `createToken()` y genera un JWT firmado.
+- El token contiene el ID del usuario y tiene una expiración de 3 días.
+
+```javascript
+const createToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+        expiresIn: maxAge // 3 días
+    });
+};
+```
+
+#### 4. **Envío de Cookie Segura**
+- El servidor envía el token de vuelta a Diana dentro de una cookie con configuración segura:
+  - `httpOnly: true` - Previene acceso desde JavaScript del cliente
+  - `maxAge` - Define tiempo de expiración
+  - El token viaja automáticamente en futuras peticiones
+
+```javascript
+res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+```
+
+#### 5. **Navegación a Rutas Protegidas**
+- Diana hace clic para ir a `/perfil` (ruta protegida).
+- El navegador automáticamente adjunta la cookie con el JWT en la petición.
+
+#### 6. **Middleware de Protección (El Guardia de Seguridad)**
+- Antes de llegar al controlador `verPerfil`, la petición pasa por el middleware `protegerRuta`.
+- Este middleware actúa como un "guardia de seguridad" que:
+
+```javascript
+const protegerRuta = async (req, res, next) => {
+    const token = req.cookies.jwt; // Busca la cookie jwt
+    
+    if (!token) {
+        return res.redirect('/login'); // Sin token = redirect
+    }
+    
+    try {
+        // Verifica la firma del token con JWT_SECRET
+        const decodificado = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Busca al usuario en la base de datos
+        const usuario = await Usuario.findById(decodificado.id);
+        
+        if (usuario) {
+            req.usuario = usuario; // Adjunta usuario a la petición
+            return next(); // Permite continuar
+        } else {
+            return res.redirect('/login');
+        }
+    } catch (error) {
+        // Token inválido o expirado
+        return res.clearCookie('jwt').redirect('/login');
+    }
+};
+```
+
+#### 7. **Acceso Permitido**
+- Como el token era válido, la petición llega a `verPerfil`.
+- El controlador ya tiene los datos del usuario disponibles en `req.usuario`.
+- Se puede acceder a la información sin necesidad de volver a autenticar.
+
+### 🔄 Middleware Adicional: checkUser
+
+Para mostrar información del usuario en todas las páginas (como el header), se utiliza el middleware `checkUser`:
+
+```javascript
+// Se ejecuta en TODAS las peticiones
+app.use('*', checkUser);
+
+// Hace el usuario disponible en las vistas como res.locals.usuario
+// Sin bloquear el acceso si no hay token
+```
+
+### 🚪 Cerrar Sesión
+
+El proceso de logout es simple pero efectivo:
+
+```javascript
+module.exports.logout_get = (req, res) => {
+    // Reemplaza la cookie con una vacía que expira inmediatamente
+    res.cookie('jwt', '', { maxAge: 1 });
+    res.redirect('/');
+}
+```
+
+### 🛡️ Ventajas de este Sistema
+
+- **Seguridad**: Los tokens están firmados y no pueden ser modificados
+- **Automático**: Las cookies viajan automáticamente en cada petición
+- **Persistente**: La sesión se mantiene aunque se cierre el navegador
+- **Escalable**: No requiere almacenamiento de sesiones en el servidor
+- **Flexible**: Fácil verificación en cualquier ruta que lo necesite
+
 ## 👤 Uso de la Aplicación
 
 ### Para Usuarios
