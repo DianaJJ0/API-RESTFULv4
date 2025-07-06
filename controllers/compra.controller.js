@@ -23,9 +23,9 @@ const realizarCompra = async (req, res) => {
             const usuarioActual = req.usuario; 
             console.log(`CONVIRTIENDO: El usuario ${usuarioActual.nombreCompleto} ahora es un cliente.`);
             
+            // Creamos un nuevo cliente con los datos del usuario
             cliente = new Cliente({
                 usuario: usuarioId,
-                //  campos según el modelo
                 documento: '0000000000', 
                 telefono: 'N/A',
                 direccion: 'N/A'
@@ -35,6 +35,7 @@ const realizarCompra = async (req, res) => {
 
         // 4. Añadir el producto y el precio al historial de compras del cliente
         cliente.historialCompras.push({ 
+            // Usamos productoId en lugar de id
             producto: productoId,
             precioCompra: producto.precio // Guardamos el precio en el momento de la compra
         });
@@ -54,7 +55,7 @@ const realizarCompra = async (req, res) => {
 // ======================     FUNCIÓN PARA MOSTRAR LA PÁGINA DE PERFIL    ================
 const verPerfil = async (req, res) => {
     try {
-        // CORRECCIÓN: Usar req.usuario para consistencia
+        // Usar req.usuario para consistencia
         const usuarioId = req.usuario._id;
 
         // Buscamos el perfil de cliente asociado al usuario logueado.

@@ -57,23 +57,36 @@ module.exports.register_post = async (req, res) => {
 
 
 // --- Procesar el inicio de sesión ---
-module.exports.login_post = async (req, res) => {
-    const { correo, password } = req.body;
+module.exports.login_post = async (req, res) => { 
+    const { correo, password } = req.body; 
 
     try {
         const usuario = await Usuario.findOne({ correo });
+        // Verificamos si el usuario existe
         if (usuario) {
-            const auth = await bcrypt.compare(password, usuario.password);
+            // Comparamos la contraseña ingresada con la almacenada en la base de datos
+            // bcrypt.compare es una operación asíncrona, por eso usamos 'await'.
+            // Si la contraseña es correcta, auth será true, de lo contrario será false.
+            const auth = await bcrypt.compare(password, usuario.password); 
+            
             if (auth) {
+                // Si la autenticación es exitosa, creamos un token JWT
                 const token = createToken(usuario._id);
-                res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+                // Guardamos el token en una cookie HTTP-Only para mayor seguridad
+                // maxAge es el tiempo de expiración del token en segundos.
+                res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 }); 
+
+                // Redirigimos al usuario a la página del catálogo
                 res.redirect('/catalogo');
+
+            // Si la contraseña es incorrecta, enviamos un error
             } else {
                 res.status(400).render('pages/login', { error: 'Contraseña incorrecta.' });
             }
         } else {
             res.status(400).render('pages/login', { error: 'Este correo no está registrado.' });
         }
+
     } catch (error) {
         console.error("Error en login:", error);
         res.status(500).render('pages/login', { error: 'Ocurrió un error en el servidor.' });
