@@ -5,9 +5,9 @@ const Usuario = require('../models/usuarios.model.js'); // Importamos el modelo 
 // ============ FUNCIÓN PARA PROCESAR UNA COMPRA  ========================
 const realizarCompra = async (req, res) => {
     try {
-        // Obtenemos el ID del usuario del token (gracias al middleware) y el ID del producto de la URL
-        const usuarioId = res.locals.usuario._id; 
-        const productoId = req.params.id; // Asumiendo que la ruta es /comprar/:id
+        // Usar req.usuario en lugar de res.locals.usuario para consistencia
+        const usuarioId = req.usuario._id; 
+        const productoId = req.params.productoId;// usar productoId en lugar de id
 
         // 1. Verificar que el producto existe
         const producto = await Producto.findById(productoId);
@@ -20,14 +20,12 @@ const realizarCompra = async (req, res) => {
 
         // 3. Si no es cliente, se crea su perfil "promocionándolo"
         if (!cliente) {
-            const usuarioActual = res.locals.usuario; // Ya lo tenemos del middleware
+            const usuarioActual = req.usuario; 
             console.log(`CONVIRTIENDO: El usuario ${usuarioActual.nombreCompleto} ahora es un cliente.`);
             
             cliente = new Cliente({
                 usuario: usuarioId,
-                nombre: usuarioActual.nombreCompleto,
-                email: usuarioActual.correo,
-                // Puedes dejar datos por defecto o pedirlos más adelante
+                //  campos según el modelo
                 documento: '0000000000', 
                 telefono: 'N/A',
                 direccion: 'N/A'
@@ -56,7 +54,8 @@ const realizarCompra = async (req, res) => {
 // ======================     FUNCIÓN PARA MOSTRAR LA PÁGINA DE PERFIL    ================
 const verPerfil = async (req, res) => {
     try {
-        const usuarioId = res.locals.usuario._id;
+        // CORRECCIÓN: Usar req.usuario para consistencia
+        const usuarioId = req.usuario._id;
 
         // Buscamos el perfil de cliente asociado al usuario logueado.
         // Usamos .populate() en dos niveles para obtener los datos del producto.
@@ -71,15 +70,15 @@ const verPerfil = async (req, res) => {
 
         // La vista 'perfil.ejs' recibirá el usuario base y el perfil de cliente (que puede ser null)
         res.render('pages/perfil', {
-            usuario: res.locals.usuario, // Datos del modelo Usuario
-            cliente: cliente,            // Datos del modelo Cliente (con compras populadas)
+            usuario: req.usuario, //  usar req.usuario
+            cliente: cliente,
             error: null
         });
 
     } catch (error) {
         console.error("Error al cargar el perfil:", error);
         res.status(500).render('pages/perfil', {
-            usuario: res.locals.usuario,
+            usuario: req.usuario, //  usar req.usuario
             cliente: null,
             error: "Hubo un error al cargar tu información."
         });
